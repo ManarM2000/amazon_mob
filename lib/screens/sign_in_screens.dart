@@ -1,0 +1,175 @@
+import 'package:amazon_project/screens/sign_up_screens.dart';
+import 'package:flutter/material.dart';
+
+import '../layout/screen_layout.dart';
+import '../resources/authenticatio_method.dart';
+import '../utils/colors_themes.dart';
+import '../utils/constant.dart';
+import '../utils/utils.dart';
+import '../widget/custom_main_botton.dart';
+import '../widget/text_field.widget.dart';
+
+class SignInScreen extends StatefulWidget {
+  const SignInScreen({Key? key}) : super(key: key);
+
+  @override
+  State<SignInScreen> createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends State<SignInScreen> {
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  AuthenticationMethods authenticationMethods = AuthenticationMethods();
+  bool isLoading = false;
+  @override
+  void dispose() {
+    super.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Size screenSize = Utils().getScreenSize();
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: SizedBox(
+          height: screenSize.height,
+          width: screenSize.width,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+            child: Center(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Image.network(
+                      amazonLogo,
+                      height: screenSize.height * 0.10,
+                    ),
+                    Container(
+                      height: screenSize.height * 0.6,
+                      width: screenSize.width * 0.8,
+                      padding: const EdgeInsets.all(25),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey, width: 1),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Sign-In",
+                            style: TextStyle(
+                                fontWeight: FontWeight.w500, fontSize: 33),
+                          ),
+                          TextFieldWidget(
+                            title: "Emails",
+                            controller: emailController,
+                            obscureText: false,
+                            hintText: "Enter your emails",
+                          ),
+                          TextFieldWidget(
+                            title: "Password",
+                            controller: passwordController,
+                            obscureText: true,
+                            hintText: "Enter your password",
+                          ),
+                          Align(
+                            alignment: Alignment.center,
+                            child: CustomMainBotton(
+                              color: yellowColor,
+                              isLoading: isLoading,
+                              onPressed: () async {
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                // Future.delayed(Duration(seconds: 2));
+                                String output =
+                                    await authenticationMethods.signInUser(
+                                        email: emailController.text,
+                                        password: passwordController.text);
+                                setState(() {
+                                  isLoading = false;
+                                });
+                                if (output == "success") {
+                                  // print("done");
+                                  //function
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: ((context) =>
+                                              ScreenLayout())));
+                                } else {
+                                  //eror
+                                  Utils().showSnackBar(
+                                      context: context, content: output);
+                                }
+                              },
+                              child: const Text(
+                                "Sign In",
+                                style: TextStyle(
+                                    letterSpacing: 0.6, color: Colors.black),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: Container(
+                            height: 1,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: Text(
+                            "New to Amazon?",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Container(
+                            height: 1,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                    CustomMainBotton(
+                        color: Colors.grey[400]!,
+                        isLoading: false,
+                        onPressed: () {
+                          Navigator.pushReplacement(context,
+                              MaterialPageRoute(builder: (context) {
+                            return const SignUpScreen();
+                          }));
+                        },
+                        child: const FittedBox(
+                          child: Text(
+                            "Create an Amazon Account",
+                            softWrap: false,
+                            // overflow: null,
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                                letterSpacing: 0.6, color: Colors.black),
+                          ),
+                        ))
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
